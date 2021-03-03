@@ -48,7 +48,7 @@ ggplot(top_ten, aes(reorder(countriesAndTerritories, deaths_sum), deaths_sum)) +
 ```
   
 ## 6. Visualize cumulative incidence for 14 days/100.000 inhabitants and total deaths for germany since beginning of the pandemic 
-#### Unfortunately, so far, there is no newer data in the dataset for this year. So numbers have dropped of course, yet I wasn't yet able to incorporate this here.
+#### Unfortunately, so far, there is no newer data in the dataset for this year. So numbers have dropped of course, yet I wasn't able to incorporate this here just now. 
 ```{r}
 germany <- covid_data[covid_data$countriesAndTerritories == "Germany",]
 
