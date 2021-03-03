@@ -15,7 +15,7 @@ library(tidyverse)
 ```
 ## 2. load the dataset
 ```{r}
-# FROM: https://www.ecdc.europa.eu
+# Data is used from a public dataset by the ECDC https://www.ecdc.europa.eu
 
 covid_data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM", stringsAsFactors = F)
 covid_data$date_reported <- mdy(paste0(covid_data$month,"-",covid_data$day,"-",covid_data$year))
@@ -48,7 +48,7 @@ ggplot(top_ten, aes(reorder(countriesAndTerritories, deaths_sum), deaths_sum)) +
 ```
   
 ## 6. Visualize cumulative incidence for 14 days/100.000 inhabitants and total deaths for germany since beginning of the pandemic 
-#### Unfortunately, so far, there is no newer data in the dataset for this year
+#### Unfortunately, so far, there is no newer data in the dataset for this year. So numbers have dropped of course, yet I wasn't yet able to incorporate this here.
 ```{r}
 germany <- covid_data[covid_data$countriesAndTerritories == "Germany",]
 
@@ -57,9 +57,8 @@ ggplot(germany, aes(x = date_reported, y = as.numeric(Cumulative_number_for_14_d
  theme_minimal(base_size = 14) +
  xlab(NULL) + ylab(NULL) + 
  scale_x_date(date_labels = "%Y/%m/%d") +
-  labs(title = "Cumulative 14-day incidence per 100.000 inhabitants", subtitle = "Black line marks current goal for loosening")+
+  labs(title = "Cumulative 14-day incidence per 100.000 inhabitants", subtitle = "Black line marks current goal for openingstrategies in Germany")+
   geom_hline(yintercept = 35, size = 1)
-
 
 ggplot(data = germany, aes(x = date_reported, y = as.numeric(deaths)), fill = "black", alpha = 0.2) + 
   geom_col()+
