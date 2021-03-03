@@ -1,0 +1,70 @@
+---
+title: "ReproWithR"
+author: "Philip Stapmanns"
+date: "3 3 2021"
+output: html_document
+---
+
+  *Unfortunately my PI didn't want me to use data from my workgroup the data we acquired so far has partially not been published.*  
+  *That is why I'll be using a COVID-19 dataset provided by the ECDC for this analysis.*  
+  
+## 1. Load needed packages
+```{r}
+library(lubridate)
+library(tidyverse)
+```
+## 2. load the dataset
+```{r}
+# FROM: https://www.ecdc.europa.eu
+
+covid_data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM", stringsAsFactors = F)
+covid_data$date_reported <- mdy(paste0(covid_data$month,"-",covid_data$day,"-",covid_data$year))
+```
+## 3. basic exploration of the data  
+The total number of **positive tested** in the pandemic so far is   
+**`r format(sum(covid_data$cases), big.mark = ".")`**  
+The total number of **confirmed deaths** in the pandemic so far is   
+**`r format(sum(covid_data$deaths), big.mark = ".")`**  
+
+## 4. countries that were hit worst by the pandemic so far
+```{r}
+analysis <- covid_data %>%
+  group_by(countriesAndTerritories)%>%
+  summarise(deaths_sum = sum(deaths), daily_max = max(deaths)) %>%
+  arrange(desc(deaths_sum))
+
+head(analysis, 10)
+```
+## 5. visualize the table
+```{r}
+top_ten <-analysis%>%
+  slice_max(n=10, order_by = deaths_sum)
+
+options(scipen=9999)
+ggplot(top_ten, aes(reorder(countriesAndTerritories, deaths_sum), deaths_sum)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Deaths since begin of pandemic", x = "", title = "Top ten countries with most deaths")
+```
+  
+## 6. Visualize cumulative incidence for 14 days/100.000 inhabitants and total deaths for germany since beginning of the pandemic 
+#### Unfortunately, so far, there is no newer data in the dataset for this year
+```{r}
+germany <- covid_data[covid_data$countriesAndTerritories == "Germany",]
+
+ggplot(germany, aes(x = date_reported, y = as.numeric(Cumulative_number_for_14_days_of_COVID.19_cases_per_100000)))+
+  geom_col(fill = "red", alpha = 0.8)+
+ theme_minimal(base_size = 14) +
+ xlab(NULL) + ylab(NULL) + 
+ scale_x_date(date_labels = "%Y/%m/%d") +
+  labs(title = "Cumulative 14-day incidence per 100.000 inhabitants", subtitle = "Black line marks current goal for loosening")+
+  geom_hline(yintercept = 35, size = 1)
+
+
+ggplot(data = germany, aes(x = date_reported, y = as.numeric(deaths)), fill = "black", alpha = 0.2) + 
+  geom_col()+
+ theme_minimal(base_size = 14) +
+ xlab(NULL) + ylab(NULL) + 
+ scale_x_date(date_labels = "%Y/%m/%d")+
+   labs(title = "Number of deaths per day")
+```
